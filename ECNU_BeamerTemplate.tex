@@ -163,20 +163,24 @@
   \textbf{Global Event Sequence}: Due to asynchronization, each learner executes its actions independently. $\Rightarrow$ The order of actions of all learners are intermixed.
   \begin{itemize}
     \item We need to specify the complete orders of the actions of all learners by mapping them into a single time axis.
-    \item We view either a prediction or a local update of any learner as an event, and use a virtual counter $t$ to index these events.
+    \item We view either a \textbf{predictions} or a \textbf{local update} of any learner as an event, and use a virtual counter $t$ to index these events.
     \item Let $T = \sum_{i\in V} N_i$ be the total number of \textbf{predictions} of all learners, then the total number of \textbf{local updates} is also T.
     \item For each event $t \in \{1,\ldots,2T\}$, we use $\delta_t \in \{0,1\}$ to distinguish the event type:
     \begin{itemize}
       \item $\delta_t = 0$ if it is a prediction event.
       \item $\delta_t = 1$ if it is a local update event.
     \end{itemize}
+
     \item We further use $i_t$ to denote the learner that executes the event $t$, and $f_t$ to denote the associated feedback.
     \item Then there exists some $\tau \in \{1,\ldots,N_{i_t}\}$ such that $f_t = f_{i_t}^\tau$.
   \end{itemize}
+\end{frame}
+
+\begin{frame}
   \begin{figure}[h!]
     \centering
-    \maybeincludegraphics[width=0.8\textwidth]{32172712-6d88-4961-9d21-4addd497fae3:image.png}
-    \caption{An example of event indexing for two learners, where $N_1=2, N_2=1$.}
+    \maybeincludegraphics[width=0.95\textwidth]{image1.png}
+    \caption{An example of Prediction and local update.}
   \end{figure}
 \end{frame}
 
@@ -190,6 +194,9 @@
   
   \vspace{0.3cm}
   \textbf{Message delay}: After any local update event $t$, the learner $i_t$ that executes this event will send out its model copy to a subset $S_t$ of its neighbors $\mathcal{N}(i_t)$. We focus on the copy sent to any neighbor $j \in S_t$. We assume such copy is used to average learner $j$'s model between events $r_{tj}$ and ($r_{tj}+1$) for some $r_{tj} \ge t$. For the message sent from learner $i_t$ to learner $j$ after event $t$, we introduce a quantity termed the message delay $d_{i_t}^m(t) = r_{tj}-t$.
+
+\end{frame}
+\begin{frame}
   \begin{figure}[h!]
     \centering
     \maybeincludegraphics[width=0.8\textwidth]{839efe1b-e043-44b7-8503-978e1919c182:截屏2025-11-05_19.42.56.png}
