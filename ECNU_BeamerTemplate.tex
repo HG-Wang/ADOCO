@@ -1,4 +1,4 @@
-\documentclass[10pt,aspectratio=169,mathserif]{beamer}		
+\documentclass[10pt,aspectratio=169]{beamer}		
 %设置为 Beamer 文档类型，设置字体为 10pt，长宽比为16:9，数学字体为 serif 风格
 
 %%%%-----导入宏包-----%%%%
@@ -7,37 +7,59 @@
 \usepackage{amsmath,amsfonts,amssymb,bm}   %导入数学公式所需宏包
 \usepackage{color}			 %字体颜色支持
 \usepackage{graphicx,hyperref,url}	
+\usepackage{booktabs} % 用于三线表
+\usepackage{algorithm}
+\usepackage{algorithmic}
 %%%%%%%%%%%%%%%%%%	
+
+% 仅数学使用衬线字体，替代过时的 mathserif 选项
+\usefonttheme[onlymath]{serif}
+
+% PDF 元数据，避免 \ 在 PDF 字符串中的警告
+\hypersetup{
+  pdfauthor={Anonymous Authors},
+  pdftitle={Asynchronous Decentralized Online Convex Optimization}
+}
+
+% 安全插图：若图片不存在则显示占位框，避免编译报错
+% 安全显示文件名（避免下划线等特殊字符导致数学模式错误）
+\newcommand{\filenamefmt}[1]{\texttt{\detokenize{#1}}}
+
+\newcommand{\maybeincludegraphics}[2][]{%
+  \IfFileExists{#2}{%
+    \includegraphics[#1]{#2}%
+  }{%
+    {\setlength{\fboxsep}{2pt}%
+    \fbox{\parbox[c][0.45\linewidth][c]{\linewidth}{\centering{\color{red} Missing image: \filenamefmt{#2}}}}}%
+  }%
+}
 
 
 \beamertemplateballitem		%设置 Beamer 主题
 
 %%%%------------------------%%%%%
-\catcode`\。=\active         %或者=13
+\catcode`\。= \active        %或者=13
 \newcommand{。}{．}				
-%将正文中的“。”号转换为“.”。
+%将正文中的"。"号转换为"."。
 %%%%%%%%%%%%%%%%%%%%%
 
 %%%%----首页信息设置----%%%%
-\title[ECNUBeamerTemplate]{ECNUBeamerTemplate}
-\subtitle{——Modified by WeiYang}			
+\title[AD-OCO Framework]{Asynchronous Decentralized Online Convex Optimization}
+\subtitle{——A Novel Framework for Asynchronous Decentralized Online Learning}			
 %%%%----标题设置
 
-
-\author[WeiYang]{
-  WeiYang \\\medskip
-  {\small {weiyang@godweiyang.com}} \\
-  {\small {www.godweiyang.com}}
+\author[Anonymous]{
+  Anonymous Authors \texorpdfstring{\\}{, } {\small Conference/Journal Submission}
   }
 %%%%----个人信息设置
 
-\institute[ECNU]{
-  East China Normal University \\
-  Department of Computer Science and Technology}
+\institute[Institution]{
+  Anonymous Institution \\
+  Department of Computer Science}
 %%%%----机构信息
 
-\date[2017.11.03]{
-  2017.11.03}
+\date[\today]{
+  \today}
 %%%%----日期信息
 
 \begin{document}
@@ -54,45 +76,397 @@
 
 \section{Introduction}
 \begin{frame}
-  \frametitle{Backgrounds}
+  \frametitle{Motivation and Background}
   \begin{itemize}
-    \item {1111111111111}
-    \item {2222222222222}
-    \item {3333333333333}
-    \item {4444444444444}
+    \item \textbf{Online learning}: Process large-scale streaming data efficiently
+    \item \textbf{Existing decentralized algorithms}: Operate under synchronous setting
+    \begin{itemize}
+      \item Leads to \textcolor{red}{straggler problem}: Fast learners wait for slow learners
+    \end{itemize}
+    \item \textbf{This paper's purpose}: Design asynchronous counterpart of synchronous algorithms
+  \end{itemize}
+  
+  \vspace{0.3cm}
+  \textbf{Key challenges:}
+  \begin{itemize}
+    \item Each learner has five basic types of actions: prediction, weight update, message sending, message receiving, and model averaging.
+    \item Asynchronization: Each learner executes its own actions independently $\Rightarrow$ the orders of the actions of different learners are intermixed together.
   \end{itemize}
 \end{frame}
 
-\section{Photo}
 \begin{frame}
-  \frametitle{My Photo}
-    \begin{figure}[htbp]
-        \centering
-        \includegraphics[width=0.6\textwidth]{pic.png}
-        \caption{hahahaha...}\label{fig:digit}
-    \end{figure}
+  \frametitle{Contributions}
+  \textbf{Novel Framework}: Asynchronous Decentralized Online Convex Optimization (AD-OCO)
+  \begin{itemize}
+    \item First formal framework that gives a complete characterization of the whole interaction dynamics of asynchronous decentralized online learning.
+    \item Individual view: Specify the action sequence of each learner using its own indices.
+    \item System view: Propose a novel event indexing system $\Rightarrow$ mapping all learners into a single time axis.
+  \end{itemize}
+  
+  \vspace{0.3cm}
+  \textbf{AD-OGP Algorithm}:
+  \begin{itemize}
+    \item A gossip-based communication scheme
+    \begin{itemize}
+        \item Each learner is only allowed to communicate with its immediate neighbors.
+        \item Adopts "push-sum" strategy (a common way to realize asymmetric gossiping), which does not require any local synchronization among learners.
+    \end{itemize}
+    \item A local update scheme build upon online gradient descent (OGD).
+    \begin{itemize}
+        \item Design a novel \textcolor{blue}{weighted projection} operation to avoid predictions outside the feasible domain.
+    \end{itemize}
+    \item \textcolor{blue}{Instantaneous model averaging}: Each learner performs model averaging as long as it's unoccupied and its receiving buffer is not empty.
+  \end{itemize}
+\end{frame} 
+
+\begin{frame}
+
+  \textbf{Theoretical Contributions}:
+  \begin{itemize}
+    \item Conduct the \textbf{first} regret analysis of asynchronous decentralized online learning.
+    \item Extend the graph augmentation technique to online setting to handle message delays.
+    \item Disentangle the complex effects of predictions, weight update and model averaging via our proposed event indexing system.
+    \item Derive a non-trivial regret bound of AD-OGP: it is the same order $O(\sqrt{T})$ as that of its synchronous counterpart.
+    \item Make an extra contribution to the convergence analysis of push-sum: reduce a factor of $\sqrt{n}$ (n is the dimension of model parameters) in the convergence rate of push-sum compared to the previous results, and the final bound is now independent of n.
+  \end{itemize}
+\end{frame}
+
+\section{AD-OCO Framework}
+\begin{frame}
+  \frametitle{Problem Formulation}
+  \textbf{Network Structure}:
+  \begin{itemize}
+    \item Undirected graph $\mathcal{G} = (V,E)$ with vertex set $V = \{1,\ldots,m\}$
+    \item Each learner $i \in V$ maintains a local model $w_i \in \mathcal{K}$ (convex compact decision set)
+    \item Each learner $i$ can only communicate with its immediate neighbors $\mathcal{N}(i) = \{j \in V \mid (i,j) \in E\}$
+  \end{itemize}
+  
+  \vspace{0.3cm}
+  \textbf{Individual View}: Specifies the action sequence of each individual learner.
+  \begin{itemize}
+    \item Learner $i \in V$ is selected adversarially by the environment to make predictions at certain time point.
+    \item Index the prediction rounds of learner $i$ as $\tau = 1,\ldots,N_i$, learner $i$ predicts with its most recent model $w_i^\tau$.
+    \item Environment reveals a convex loss function $f_i^\tau : \mathcal{K} \mapsto \mathbb{R}$, and learner suffers from the loss $f_i^\tau(w_i^\tau)$.
+    \item After finishing the calculation, it uses the gradient to update its model $w_i \leftarrow \mathcal{U}(w_i;\nabla f_i^\tau(w_i^\tau))$, where $\mathcal{U}$ is the local update scheme.
+  \end{itemize}
+\end{frame}
+\begin{frame}
+  \begin{itemize}
+    \item Then it selects a subset of neighbors, and \textit{sends} a copy of its updated model to each of them.
+    \item Besides sending out its own model copies, learner $i$ will also \textit{receive} its neighbors' model copies at certain time points. These copies will be stored in receiving buffer $\mathcal{B}_i$.
+    \item Whenever learner $i$ is not occupied with gradient calculation or local update, and its buffer is not empty, it can \textit{average} its model with the model copies stored in the buffer, i.e., $w_i \leftarrow \mathcal{A}(w_i;\mathcal{B}_i)$, where $\mathcal{A}$ is the model averaging scheme.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{System View and Event Indexing}
+  \textbf{Global Event Sequence}: Due to asynchronization, each learner executes its actions independently. $\Rightarrow$ The order of actions of all learners are intermixed.
+  \begin{itemize}
+    \item We need to specify the complete orders of the actions of all learners by mapping them into a single time axis.
+    \item We view either a prediction or a local update of any learner as an event, and use a virtual counter $t$ to index these events.
+    \item Let $T = \sum_{i\in V} N_i$ be the total number of \textbf{predictions} of all learners, then the total number of \textbf{local updates} is also T.
+    \item For each event $t \in \{1,\ldots,2T\}$, we use $\delta_t \in \{0,1\}$ to distinguish the event type:
+    \begin{itemize}
+      \item $\delta_t = 0$ if it is a prediction event.
+      \item $\delta_t = 1$ if it is a local update event.
+    \end{itemize}
+    \item We further use $i_t$ to denote the learner that executes the event $t$, and $f_t$ to denote the associated feedback.
+    \item Then there exists some $\tau \in \{1,\ldots,N_{i_t}\}$ such that $f_t = f_{i_t}^\tau$.
+  \end{itemize}
+  \begin{figure}[h!]
+    \centering
+    \maybeincludegraphics[width=0.8\textwidth]{32172712-6d88-4961-9d21-4addd497fae3:image.png}
+    \caption{An example of event indexing for two learners, where $N_1=2, N_2=1$.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Delays and Model Evolution}
+  \textbf{Processing delay}: Since any prediction must occur before its corresponding local update, here we have $t \ge 2$, $l_t < t$ and $d^g(t)>0$.
+  \[
+  d^p(t) = \text{card}\{l_t < s < t \mid \delta_s = 1\}
+  \]
+  \textit{i.e., the number of local updates between prediction and its associated local update.}
+  
+  \vspace{0.3cm}
+  \textbf{Message delay}: After any local update event $t$, the learner $i_t$ that executes this event will send out its model copy to a subset $S_t$ of its neighbors $\mathcal{N}(i_t)$. We focus on the copy sent to any neighbor $j \in S_t$. We assume such copy is used to average learner $j$'s model between events $r_{tj}$ and ($r_{tj}+1$) for some $r_{tj} \ge t$. For the message sent from learner $i_t$ to learner $j$ after event $t$, we introduce a quantity termed the message delay $d_{i_t}^m(t) = r_{tj}-t$.
+  \begin{figure}[h!]
+    \centering
+    \maybeincludegraphics[width=0.8\textwidth]{839efe1b-e043-44b7-8503-978e1919c182:截屏2025-11-05_19.42.56.png}
+    \caption{The evolution of model $w_i$.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Model Evolution and Regret Definition}
+  \textbf{Model Evolution}: We denote $w_i(t)$ as the most recent model before event $t$ occurs, and $u_i(t)$ as the model immediately after event $t$.
+  \begin{itemize}
+    \item For an update event executed by learner $i_t$, its associated gradient is calculated based on learner $i_t$'s prediction using model $w_{i_t}(l_t)$ at event $l_t$:
+    \[
+    u_{i_t} = \mathcal{U}(w_{i_t}(t);\nabla f_{l_t}(w_{i_t}(l_t)))
+    \]
+    The models of other learners do not change at $i_t$'s local update event, so $u_j(t)=w_j(t)$ for $j \ne i_t$.
+    \item Model averaging operation is not regarded as an event. It happens between $t$ and $t+1$ if learner $i$ is not occupied.
+    \begin{itemize}
+        \item Model at the beginning: $u_i(t)$
+        \item Model at the end: $w_i(t+1)$
+    \end{itemize}
+    So, the overall effect of model averaging on learner $i$ between event $t$ and $t+1$ can be expressed as:
+    \[
+    \boldsymbol{w}_{i}(t+1)=
+    \begin{cases}
+    \boldsymbol{u}_{i}(t), & s=0 \\
+    \mathcal{A}\left(\cdots\left(\mathcal{A}\left(\mathcal{A}\left(\boldsymbol{u}_{i}(t), \mathcal{B}_{i}^{1}(t)\right), \mathcal{B}_{i}^{2}(t)\right) \cdots\right), \mathcal{B}_{i}^{s}(t)\right), & s \geq 1
+    \end{cases}
+    \]
+  \end{itemize}
+  
+  \vspace{0.3cm}
+  \textbf{Regret Definition}: In AD-OCO, the regret w.r.t an arbitrary reference learner $j \in V$ is defined as:
+  \[
+  \text{Regret}_j=\sum_{t \in \mathcal{P}_{T}} f_{t}\left(\boldsymbol{w}_{j}(t)\right)-\sum_{t \in \mathcal{P}_{T}} f_{t}\left(\boldsymbol{w}^{*}\right)
+  \]
+  where $\mathcal{P}_{T}=\left\{t \in\{1, \ldots,2T\} \mid \delta_{t}=0\right\}$ denotes the set of all prediction events, and $w^* \in \operatorname{argmin}_{\boldsymbol{w} \in \mathcal{K}} \sum_{t \in \mathcal{P}_{T}} f_{t}(\boldsymbol{w})$ refers to a \textbf{fixed model} chosen with hindsight.
+  
+  \textbf{Goal}: Learners aim to make a prediction sequence $\left\{\boldsymbol{w}_{i}(t)\right\}_{i \in V, t \in \mathcal{P}_{T}}$, such that the regret of any reference learner $j$ grows sublinearly with time, i.e.,
+  \[
+  \lim_{T \rightarrow \infty} \operatorname{Regret}_{j} / T=0
+  \]
+  \begin{figure}[h!]
+    \centering
+    \maybeincludegraphics[width=0.6\textwidth]{91d5014d-5ff0-4c83-a8e6-d294a334f117:截图_20251106161456.png}
+    \caption{The AD-OGP Algorithm Framework (Algorithm 1).}
+  \end{figure}
+\end{frame}
+
+\section{AD-OGP Algorithm}
+\begin{frame}
+  \frametitle{Algorithm Overview}
+  \textbf{Initial State}: Each node $i$ maintains a pair of variables $(x_i, y_i)$, and predicts with $w_{i_t}(t)=\frac{x_{i_t}(t)}{y_{i_t}(t)}$.
+  \begin{itemize}
+    \item $x_i$ is a \textbf{weighted model}, $y_i$ is a \textbf{weight scalar} (always $>0$). Both are used for push-sum.
+    \item Initialization: $x_i = w_0 \in \mathcal{K}$ ($\mathcal{K}$ is a convex compact decision set), $y_i = 1$.
+  \end{itemize}
+  
+  \vspace{0.3cm}
+  \textbf{AD-OGP Algorithm Steps}:
+  \begin{algorithm}[H]
+    \caption{Asynchronous Decentralized Online Gradient-Push (AD-OGP)}
+    \begin{algorithmic}[1]
+      \STATE \textbf{Input:} Learning rate $\eta$, initial model $w_0 \in \mathcal{K}$
+      \STATE \textbf{Initialize:} For each learner $i \in V$, $x_i \leftarrow w_0$, $y_i \leftarrow 1$. Empty receiving buffer $\mathcal{B}_i$.
+      \STATE \textbf{Loop for each event $t \in \{1, \ldots, 2T\}$:}
+      \STATE \quad \textbf{If} $\delta_t = 0$ (prediction event) for learner $i_t$:
+      \STATE \quad \quad $w_{i_t}(t) \leftarrow x_{i_t}(t)/y_{i_t}(t)$
+      \STATE \quad \quad Make prediction with $w_{i_t}(t)$, receive loss function $f_t$.
+      \STATE \quad \textbf{If} $\delta_t = 1$ (local update event) for learner $i_t$:
+      \STATE \quad \quad Let $l_t$ be the prediction event corresponding to $f_t$.
+      \STATE \quad \quad Compute gradient $g_t = \nabla f_{l_t}(w_{i_t}(l_t))$.
+      \STATE \quad \quad $\gamma_{i_t} \leftarrow 1/(|\mathcal{N}(i_t)|+1)$
+      \STATE \quad \quad $x_{i_t}^{temp} \leftarrow x_{i_t}(t) - \eta g_t$
+      \STATE \quad \quad $w_{i_t}^{proj} \leftarrow \Pi_{\mathcal{K}}(x_{i_t}^{temp}/y_{i_t}(t))$  \COMMENT{Weighted Projection}
+      \STATE \quad \quad $x_{i_t}'(t) \leftarrow \gamma_{i_t} y_{i_t}(t) w_{i_t}^{proj}$
+      \STATE \quad \quad $y_{i_t}'(t) \leftarrow \gamma_{i_t} y_{i_t}(t)$
+      \STATE \quad \quad Send $(x_{i_t}'(t), y_{i_t}'(t))$ to all neighbors $j \in \mathcal{N}(i_t)$.
+      \STATE \quad \textbf{Asynchronous Model Averaging (between events $t$ and $t+1$):}
+      \STATE \quad \quad For each learner $i$ that is unoccupied and $\mathcal{B}_i$ is not empty:
+      \STATE \quad \quad \quad For each $(x_{rcv}, y_{rcv}) \in \mathcal{B}_i$:
+      \STATE \quad \quad \quad \quad $x_i \leftarrow x_i + x_{rcv}$
+      \STATE \quad \quad \quad \quad $y_i \leftarrow y_i + y_{rcv}$
+      \STATE \quad \quad \quad Clear $\mathcal{B}_i$.
+      \STATE \quad \quad For $j \ne i_t$, $x_j(t+1) \leftarrow x_j(t)$, $y_j(t+1) \leftarrow y_j(t)$.
+    \end{algorithmic}
+  \end{algorithm}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Push-Sum Communication Strategy}
+  \textbf{Challenge}: Decentralized model averaging typically involves linear averaging with neighbors. In an asynchronous and asymmetric setting, traditional doubly-stochastic averaging is not feasible.
+  \begin{itemize}
+    \item \textit{Why?}
+    \begin{itemize}
+      \item Doubly-stochastic matrices require symmetric interactions ($p_{ij} = p_{ji}$) and global synchronization ($v(t+1)=Pv(t)$).
+      \item In asynchronous asymmetric gossiping, learner $i$ sends its model to $j$ without waiting for acknowledgment or $j$'s model. This makes symmetric weights impossible to negotiate.
+      \item Lack of global rounds means $\sum_j p_{ij}=1$ (row stochastic) and $\sum_i p_{ij}=1$ (column stochastic) cannot be maintained simultaneously in a global snapshot.
+      \item Column stochasticity ($P_{ii}=\gamma_i$, $\forall j \in \mathcal{N}(i)$, $P_{ji}=\gamma_i$) can be enforced locally for outgoing messages, but row stochasticity cannot.
+    \end{itemize}
+    \item \textit{How Push-sum addresses this?}
+    \begin{itemize}
+      \item Each learner maintains a tuple $(x_i, y_i)$. $x_i$ carries model information, $y_i$ is an auxiliary scalar.
+      \item After local update, learner $i$ calculates $\gamma_i = 1/(|\mathcal{N}(i)|+1)$, updates $x'_i = \gamma_i x_i$, $y'_i = \gamma_i y_i$, and sends $(x'_i, y'_i)$ to all neighbors.
+      \item Neighbors accumulate these received quantities into their $(x,y)$ pair (Instantaneous Model Averaging).
+      \item The predicted model is $w_i = x_i/y_i$.
+      \item \textbf{Bias Removal}: While $x_i$ might converge to a biased sum $\pi_i \bar{x}$ due to network asymmetry, $y_i$ undergoes the same averaging process and converges to the same bias $\pi_i$. Thus, the ratio $w_i = x_i/y_i$ becomes unbiased, approximating the global average $\bar{x}$.
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Regret Bound Analysis}
+  \textbf{Assumptions}:
+  \begin{itemize}
+    \item \textbf{Assumption 1}: The message delays are bounded by some integer $D^{msg} \geq 0$.
+    \item \textbf{Assumption 2}: Each learner performs local updates at least once every $\Gamma_d$ steps for some integer $\Gamma_d > 0$.
+  \end{itemize}
+  
+  \vspace{0.3cm}
+  \textbf{Definitions}:
+  \begin{itemize}
+    \item $\mathcal{Q}_{s,t} = \mathcal{Q}_T \cap (s,t)$ denotes local updates between events $s$ and $t$.
+    \item For any $t \in \mathcal{Q}_T$, $d^p(t) = |\mathcal{Q}_{l_t,t}|$.
+    \item $g_t = \nabla f_{l_t}(x_{i_t}(l_t)/y_{i_t}(l_t))$, $\hat{g}_t = \nabla f_{l_t}(x_j(l_t)/y_j(l_t))$ for local update gradients.
+    \item Total processing delay: $D^{proc} = \sum_{t \in \mathcal{Q}_T} d^p(t)$.
+  \end{itemize}
+  
+  \vspace{0.3cm}
+  \textbf{Key Techniques for Analysis}:
+  \begin{itemize}
+    \item \textbf{Graph Augmentation Technique}: For each real node $i$, create $D^{msg}$ virtual nodes. Message passing from $i$ to $j$ is viewed as a delay-free path on this augmented graph. This helps to handle message delays.
+    \item \textbf{Mixing Analysis}: After a sufficient number of time steps (related to network diameter $\mathcal{D}$ and max delay $D^{msg}$, denoted as $B$), the multi-step transition matrix $\mathcal{Q}_{s,s+B}$ ensures that information from any node propagates to any other real node.
+    \item \textbf{Geometric Decay of Model Bias}: The minimum positive element $\alpha$ in the transition matrix is used to show that model deviation $\|w_i(t) - \bar{w}(t)\|$ decays geometrically, proportional to $\lambda^{t-s}$, where $\lambda$ is a convergence factor.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Regret Bound Derivation}
+  \textbf{General Regret Upper Bound}:
+  \[
+  \begin{array}{l}
+  \text { Regret }_{j} \leq \frac{m}{2\eta}\left\|\boldsymbol{w}_{0}-\boldsymbol{w}^{*}\right\|^{2}+\frac{2\eta}{m} \sum_{t \in \mathcal{Q}_{T}} \sum_{s \in \mathcal{Q}_{l_t}, t+1} g_{t} g_{s}+\eta \sum_{t \in \mathcal{Q}_{T}} \frac{g_{t}^{2}}{y_{i_{t}}(t)} \\ \quad+2\eta \sum_{t \in \mathcal{Q}_{T}} \sum_{s \in \mathcal{Q}_{1, l_t}} \lambda^{\left\lfloor\frac{l_{t}-s}{2B}\right\rfloor}\left(g_{t}+2\hat{g}_{t}\right) \frac{g_{s}}{y_{i_{s}}(t)}+2\eta \sum_{t \in \mathcal{Q}_{T}} \sum_{s \in \mathcal{Q}_{1, t+1}} \lambda^{\left\lfloor\frac{t-s}{2B}\right\rfloor} g_{t} \frac{g_{s}}{y_{i_{s}}(t)},\end{array}
+  \]
+  where $\lambda=1-m \alpha^{4}$, $\alpha=(1/m)^{B}$, $B=(\mathcal{D}+1)\left(D^{msg}+\Gamma_{d}\right)$.
+  
+  \vspace{0.3cm}
+  \textbf{Final Regret Bound} (assuming $g_t \leq G, \hat{g}_t \leq G, \forall t \in \mathcal{Q}_T$ for $G < \infty$):
+  \[
+  \mathbf{Regret}_j \leq \frac{m}{2\eta} \| \boldsymbol{w}_0 - \boldsymbol{w}^* \|^2 + \frac{2\eta}{m} G^2(T + D^{proc}) + \frac{2\eta}{m} \left( \frac{8 + \alpha^4}{\alpha^5} \right) BG^2T
+  \]
+  By setting $\eta=(mF/2G)(D^{proc}+T+CBT)^{-1/2}$, where $C=(8+\alpha^4)/\alpha^5$, the final regret is $O((CBT+T+D^{proc})^{1/2})$.
+\end{frame}
+
+\section{Experiments}
+\begin{frame}
+  \frametitle{Experimental Setup}
+  \textbf{Two Large-Scale Real-World Datasets}:
+  \begin{itemize}
+    \item \textbf{Higgs dataset}: A benchmark dataset in high-energy physics for binary classification, consisting of 11 million instances with 28 features. Uses logical loss.
+    \item \textbf{Poker-hand dataset}: A commonly used dataset in automatic rule generation for 10-class classification, with 1 million instances and 25 features. Uses multivariate logistic loss.
+  \end{itemize}
+  \textit{These datasets, with different tasks (binary vs. multi-class) and domains, test the algorithm's scalability and generalization.}
+  
+  \vspace{0.3cm}
+  \textbf{Comparison and Verification Goals}:
+  \begin{itemize}
+    \item Compare AD-OGP with its synchronous counterpart (D-OGP) to show the advantage of asynchronization.
+    \item Verify the effectiveness of asymmetric gossiping and instantaneous model averaging.
+    \item Verify our theoretical regret bound.
+  \end{itemize}
+  
+  \vspace{0.3cm}
+  \textbf{Network Topologies for Comparison}:
+  \begin{itemize}
+    \item Complete graph (high connectivity)
+    \item Watts-Strogatz graph (random graph with medium connectivity)
+    \item Ring graph (low connectivity)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Benefit of Asynchronization}
+  \begin{figure}[h!]
+    \centering
+    \maybeincludegraphics[width=0.8\textwidth]{21f7f0f0-b57a-4a08-96ce-504e3e0842ba:image.png}
+    \caption{Illustration of the benefit of asynchronization. The four plots compare AD-OGP and D-OGP on 64-node Watts-Strogatz graphs on poker-hand under varying delay levels.}
+  \end{figure}
+  \begin{itemize}
+    \item AD-OGP's running speed is significantly faster than D-OGP.
+    \item The performance gap increases with higher processing and message delays.
+    \item AD-OGP's average loss is comparable to D-OGP, indicating no sacrifice in learning performance.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Effectiveness of Asymmetric Gossiping and Instantaneous Model Averaging}
+  \textbf{4.3.1 The Effectiveness of Asymmetric Gossiping}
+  \begin{figure}[h!]
+    \centering
+    \maybeincludegraphics[width=0.8\textwidth]{944ac58f-0294-4c3a-88c4-fc0b5f2be828:image.png}
+    \caption{Illustration of the effectiveness of asymmetric gossiping.}
+  \end{figure}
+  \begin{itemize}
+    \item Increasing $D^{msg}$ artificially creates communication bottlenecks.
+    \item Experiments show that asymmetric gossip communication significantly improves performance, especially prominent with high communication delays.
+  \end{itemize}
+  
+  \vspace{0.3cm}
+  \textbf{4.3.2 The Effectiveness of Instantaneous Model Averaging}
+  \begin{figure}[h!]
+    \centering
+    \maybeincludegraphics[width=0.8\textwidth]{2c019b85-bb61-4af6-b237-4d5a52671aed:image.png}
+    \caption{Illustration of the effectiveness of instantaneous model averaging.}
+  \end{figure}
+  \begin{itemize}
+    \item Adjusting $D_l$ magnifies learner waiting time.
+    \item Experiments demonstrate that instantaneous model averaging significantly boosts performance by utilizing idle time, especially when noticeable idle periods exist.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Verification of the Theoretical Bound}
+  \begin{figure}[h!]
+    \centering
+    \maybeincludegraphics[width=0.8\textwidth]{f2167018-059a-4570-aeb0-669cfb26a2be:image.png}
+    \caption{Verification of our regret bound. The four plots show AD-OGP’s performance on poker-hand with varying characteristics. (a) Varying network sizes. (b) Varying network topology. (c) Varying levels of processing delays. (d) Varying levels of message delays.}
+  \end{figure}
+  \begin{itemize}
+    \item Experiments adjust four factors in the regret bound formula across the four sub-figures.
+    \item Results indicate that AD-OGP's loss is higher when:
+    \begin{itemize}
+      \item The number of learners is larger.
+      \item Network connectivity is worse.
+      \item Processing delays are heavier.
+      \item Message delays are heavier.
+    \end{itemize}
+    \item This shows a high consistency between experimental behavior and theoretical results.
+  \end{itemize}
 \end{frame}
 
 \section{Conclusion}
 \begin{frame}
-  \frametitle{Emmm...}
-  \noindent\textbf{Sequence Tagging Loss\\}
-    \[{\mathcal{L}_p} =  - \sum\limits_{i = 1}^S {\sum\limits_{j = 1}^N {{p_{i,j}}\log ({{\hat p}_{i,j}})} } \]
-  \noindent\textbf{Language Classifier Loss\\}
-   \[{\mathcal{L}_a} =  - \sum\limits_{i = 1}^S {{l_i}\log ({{\hat l}_i})}\]
-  \noindent\textbf{Bidirectional Language Model Loss\\}
-   \[{\mathcal{L}_l} =  - \sum\limits_{i = 1}^S {\sum\limits_{j = 1}^N {\log (P({w_{j + 1}}|{f_j})) + \log (P({w_{j - 1}}|{b_j}))} }\]
+  \frametitle{Conclusions and Future Work}
+  \textbf{Key Contributions}:
+  \begin{itemize}
+    \item In this paper, we present the first systematic study of asynchronous decentralized online learning.
+    \item We begin by formulating the framework of Asynchronous Decentralized Online Convex Optimization (AD-OCO), which gives a complete characterization of the whole interaction dynamics.
+    \item Then we devise the Asynchronous Decentralized Online Gradient-Push (AD-OGP) algorithm, which is fully asynchronous and includes two novel innovations: weighted projection and instantaneous model averaging.
+    \item Theoretically, we provide the first regret analysis paradigm for asynchronous decentralized online learning, deriving a non-trivial regret bound of $O(\sqrt{T})$.
+    \item Finally, we conduct extensive experiments to demonstrate the benefit of asynchronization, verify the effectiveness of the two innovations, and corroborate the theoretical bound.
+    \item Our work paves the way for future research investigating asynchronous decentralized online learning.
+  \end{itemize}
+  
+  \vspace{0.3cm}
+  \textbf{Limitations and Future Work}:
+  \begin{itemize}
+    \item As the first step of studying asynchronous learning in the decentralized online setting, our framework formulation and theoretical analysis are conducted in the convex setting.
+    \item Although such limitation does not affect its usage in the non-convex setting, we would like to establish a formal non-convex analysis in the future.
+    \item Further explore more complex network scenarios and dynamic topologies.
+  \end{itemize}
 \end{frame}
 
 \section{References}
 \begin{frame}{References}
 \begin{thebibliography}{99}
-\bibitem{zhao1} Xuezhe Ma and Eduard Hovy. (2016).\\
-{\bf End-to-end Sequence Labeling via Bi-directional LSTM-CNNs-CRF.\\}
-In Proceedings of the 54th Annual Meeting of the Association for Computational Linguistics, pages 1064–1074, Berlin, Germany, August 7-12, 2016.
-\bibitem{zhao2} Marek Rei. (2017).\\
-{\bf Semi-supervised Multitask Learning for Sequence Labeling.\\}
-In Proceedings of the 55th Annual Meeting of the Association for Computational Linguistics, pages 2121–2130, Vancouver, Canada, July 30 - August 4, 2017.
+\bibitem{adoco1} Anonymous Author 1, Anonymous Author 2, Anonymous Author 3. (2023).\\
+{\bf Asynchronous Decentralized Online Convex Optimization.\\}
+In Submission to Major Machine Learning Conference.
+
+\bibitem{decentralized1} Tsianos, K. I., Lawlor, S., \& Rabbat, M. G. (2012).\\
+{\bf Consensus-based distributed optimization: Practical issues and applications in large-scale machine learning.\\}
+In 2012 50th Annual Allerton Conference on Communication, Control, and Computing.
+
+\bibitem{pushsum1} Kempe, D., Dobra, A., \& Gehrke, J. (2003).\\
+{\bf Gossip-based computation of aggregate information.\\}
+In 44th Annual IEEE Symposium on Foundations of Computer Science.
 \end{thebibliography}
 \end{frame}
 
