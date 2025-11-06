@@ -38,28 +38,34 @@
 \beamertemplateballitem		%设置 Beamer 主题
 
 %%%%------------------------%%%%%
-\catcode`\。= \active        %或者=13
-\newcommand{。}{．}				
-%将正文中的"。"号转换为"."。
+% 如果用 pdflatex 编译，CTeX 可能尝试使用 mac 字体集或生成位图字体，
+% 并且 pdflatex 对于含有空格/非 ASCII 的文件名支持薄弱。
+% 因此强烈建议使用 XeLaTeX 或 LuaLaTeX（xelatex 或 lualatex）。
+\RequirePackage{iftex}
+\ifPDFTeX
+  \PackageError{ECNU_BeamerTemplate}{This template requires XeLaTeX or LuaLaTeX for proper Unicode/CJK and file name handling. Please run `xelatex ECNU_BeamerTemplate.tex` (or `lualatex`) instead of `pdflatex`.}{}
+\fi
+
+% 将中文句号转换为指定符号（可选）。使用更稳健的 catcode/定义形式。
+\catcode`\。=\active
+\def。{．}
+% 将正文中的"。"号转换为"．"（全角句点），如需半角请改为 \def。{.}
 %%%%%%%%%%%%%%%%%%%%%
 
 %%%%----首页信息设置----%%%%
-\title[AD-OCO Framework]{Asynchronous Decentralized Online Convex Optimization}
-\subtitle{——A Novel Framework for Asynchronous Decentralized Online Learning}			
+\title[Asynchronous Decentralized Online Learning ]{Asynchronous Decentralized Online Learning}
+\subtitle{Published in NeurIPS 2021}			
 %%%%----标题设置
 
-\author[Anonymous]{
-  Anonymous Authors \texorpdfstring{\\}{, } {\small Conference/Journal Submission}
+\author[J. Jiang et al.]{
+  Jiyan Jiang\textsuperscript{*}, Wenpeng Zhang\textsuperscript{*}, Jinjie Gu, Wenwu Zhu\textsuperscript{\dag} \\
+  \vspace{0.3cm}
+  {\small Presenters: Haiguang Wang, Yufeng Chen, Yuxiang Hong}
   }
 %%%%----个人信息设置
 
-\institute[Institution]{
-  Anonymous Institution \\
-  Department of Computer Science}
-%%%%----机构信息
 
-\date[\today]{
-  \today}
+\date{2025年11月7日}
 %%%%----日期信息
 
 \begin{document}
@@ -199,8 +205,8 @@
 \begin{frame}
   \begin{figure}[h!]
     \centering
-    \maybeincludegraphics[width=0.8\textwidth]{839efe1b-e043-44b7-8503-978e1919c182:截屏2025-11-05_19.42.56.png}
-    \caption{The evolution of model $w_i$.}
+    \maybeincludegraphics[width=0.9\textwidth]{image2.png}
+    \caption{An example of Processing delay and Message delay.}
   \end{figure}
 \end{frame}
 
@@ -228,17 +234,24 @@
     \]
   \end{itemize}
   
-  \vspace{0.3cm}
+\end{frame}
+\begin{frame}
+
   \textbf{Regret Definition}: In AD-OCO, the regret w.r.t an arbitrary reference learner $j \in V$ is defined as:
   \[
   \text{Regret}_j=\sum_{t \in \mathcal{P}_{T}} f_{t}\left(\boldsymbol{w}_{j}(t)\right)-\sum_{t \in \mathcal{P}_{T}} f_{t}\left(\boldsymbol{w}^{*}\right)
   \]
   where $\mathcal{P}_{T}=\left\{t \in\{1, \ldots,2T\} \mid \delta_{t}=0\right\}$ denotes the set of all prediction events, and $w^* \in \operatorname{argmin}_{\boldsymbol{w} \in \mathcal{K}} \sum_{t \in \mathcal{P}_{T}} f_{t}(\boldsymbol{w})$ refers to a \textbf{fixed model} chosen with hindsight.
-  
+
+
+
   \textbf{Goal}: Learners aim to make a prediction sequence $\left\{\boldsymbol{w}_{i}(t)\right\}_{i \in V, t \in \mathcal{P}_{T}}$, such that the regret of any reference learner $j$ grows sublinearly with time, i.e.,
   \[
   \lim_{T \rightarrow \infty} \operatorname{Regret}_{j} / T=0
   \]
+
+\end{frame}
+\begin{frame}
   \begin{figure}[h!]
     \centering
     \maybeincludegraphics[width=0.6\textwidth]{91d5014d-5ff0-4c83-a8e6-d294a334f117:截图_20251106161456.png}
