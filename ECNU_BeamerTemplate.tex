@@ -80,6 +80,8 @@
 \tableofcontents
 \end{frame}				%生成提纲页
 
+\renewcommand{\figurename}{image}
+
 \section{Introduction}
 \begin{frame}
   \frametitle{Motivation and Background}
@@ -374,15 +376,15 @@
   \end{itemize}
   \textit{These datasets, with different tasks (binary vs. multi-class) and domains, test the algorithm's scalability and generalization.}
   
-  \vspace{0.3cm}
+  \vspace{0.2cm}
   \textbf{Comparison and Verification Goals}:
   \begin{itemize}
-    \item Compare AD-OGP with its synchronous counterpart (D-OGP) to show the advantage of asynchronization.
+    \item Compare AD-OGP with D-OGP (synchronous) to show the advantage of asynchronization.
     \item Verify the effectiveness of asymmetric gossiping and instantaneous model averaging.
     \item Verify our theoretical regret bound.
   \end{itemize}
   
-  \vspace{0.3cm}
+  \vspace{0.2cm}
   \textbf{Network Topologies for Comparison}:
   \begin{itemize}
     \item Complete graph (high connectivity)
@@ -391,11 +393,13 @@
   \end{itemize}
 \end{frame}
 
+
+
 \begin{frame}
   \frametitle{The Benefit of Asynchronization}
   \begin{figure}[h!]
     \centering
-    \maybeincludegraphics[width=0.8\textwidth]{21f7f0f0-b57a-4a08-96ce-504e3e0842ba:image.png}
+    \maybeincludegraphics[width=0.8\textwidth]{image4.png}
     \caption{Illustration of the benefit of asynchronization. The four plots compare AD-OGP and D-OGP on 64-node Watts-Strogatz graphs on poker-hand under varying delay levels.}
   \end{figure}
   \begin{itemize}
@@ -406,23 +410,23 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Effectiveness of Asymmetric Gossiping and Instantaneous Model Averaging}
-  \textbf{4.3.1 The Effectiveness of Asymmetric Gossiping}
+  \frametitle{The Effectiveness of Asymmetric Gossiping}
   \begin{figure}[h!]
     \centering
-    \maybeincludegraphics[width=0.8\textwidth]{944ac58f-0294-4c3a-88c4-fc0b5f2be828:image.png}
+    \maybeincludegraphics[width=0.8\textwidth]{image5.png}
     \caption{Illustration of the effectiveness of asymmetric gossiping.}
   \end{figure}
   \begin{itemize}
     \item Increasing $D^{msg}$ artificially creates communication bottlenecks.
     \item Experiments show that asymmetric gossip communication significantly improves performance, especially prominent with high communication delays.
   \end{itemize}
-  
-  \vspace{0.3cm}
-  \textbf{4.3.2 The Effectiveness of Instantaneous Model Averaging}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Effectiveness of Instantaneous Model Averaging}
   \begin{figure}[h!]
     \centering
-    \maybeincludegraphics[width=0.8\textwidth]{2c019b85-bb61-4af6-b237-4d5a52671aed:image.png}
+    \maybeincludegraphics[width=0.8\textwidth]{image6.png}
     \caption{Illustration of the effectiveness of instantaneous model averaging.}
   \end{figure}
   \begin{itemize}
@@ -435,7 +439,7 @@
   \frametitle{Verification of the Theoretical Bound}
   \begin{figure}[h!]
     \centering
-    \maybeincludegraphics[width=0.8\textwidth]{f2167018-059a-4570-aeb0-669cfb26a2be:image.png}
+    \maybeincludegraphics[width=0.8\textwidth]{image7.png}
     \caption{Verification of our regret bound. The four plots show AD-OGP’s performance on poker-hand with varying characteristics. (a) Varying network sizes. (b) Varying network topology. (c) Varying levels of processing delays. (d) Varying levels of message delays.}
   \end{figure}
   \begin{itemize}
@@ -453,7 +457,7 @@
 
 \section{Conclusion}
 \begin{frame}
-  \frametitle{Conclusions and Future Work}
+  \frametitle{Conclusions}
   \textbf{Key Contributions}:
   \begin{itemize}
     \item In this paper, we present the first systematic study of asynchronous decentralized online learning.
@@ -463,8 +467,11 @@
     \item Finally, we conduct extensive experiments to demonstrate the benefit of asynchronization, verify the effectiveness of the two innovations, and corroborate the theoretical bound.
     \item Our work paves the way for future research investigating asynchronous decentralized online learning.
   \end{itemize}
-  
-  \vspace{0.3cm}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Limitations and Future Work}
   \textbf{Limitations and Future Work}:
   \begin{itemize}
     \item As the first step of studying asynchronous learning in the decentralized online setting, our framework formulation and theoretical analysis are conducted in the convex setting.
